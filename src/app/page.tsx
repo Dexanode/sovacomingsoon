@@ -1,603 +1,83 @@
-"use client";
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import AttestationReceipt from "../components/AttestationReceipt";
-import SpotlightCard from "../components/SpotlightCard";
+import Link from "next/link";
 
-const ParticleBg = dynamic(() => import("../components/ParticleBg"), { ssr: false });
+const REGISTRY = "0x953a4edC84CEBdC113688310F54adce6Dc2c8bCf";
+const SCHEMA = "0xa4fd4d46f668808d9c08e88f8c48ae38525e9089c3623e3425ac895128ffb526";
+const CLAIM = "0x2bc2f60ae0fbd643015653010057be9f6f3ae1585aa8dc514c415b54c57f1bc1";
+const ISSUER = "0x9325B1eba43AD4A3104D191909fFa0DcFabB2B28";
 
-/* ── Design tokens ── */
-const BLUE    = "#3D6FFF";
-const TXT     = "#0A0A0A";
-const TXT2    = "#6B7280";
-const TXT3    = "#9CA3AF";
-const BORDER  = "1px solid rgba(0,0,0,0.08)";
-const CARD    = "#F7F7F8";
-const CARD_B  = "1px solid rgba(61,111,255,0.2)";
-
-/* ── Inline SVG icons ── */
-const IconSoul = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-  </svg>
-);
-const IconAnalyze = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-  </svg>
-);
-const IconAttest = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    <polyline points="9 12 11 14 15 10"/>
-  </svg>
-);
-const ArrowRight = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round">
-    <path d="M5 12h14M12 5l7 7-7 7"/>
-  </svg>
-);
+function Short({ value }: { value: string }) {
+  return <span title={value}>{value.slice(0, 10)}…{value.slice(-8)}</span>;
+}
 
 export default function Home() {
-  const [wbt,     setWbt]     = useState(300);
-  const [weeks,   setWeeks]   = useState(24);
-  const [age,     setAge]     = useState(12);
-  const [email,   setEmail]   = useState("");
-  const [msg,     setMsg]     = useState("");
-  const [msgOk,   setMsgOk]   = useState(false);
-  const [busy,    setBusy]    = useState(false);
+  return <main>
+    <header className="site-nav shell">
+      <Link href="/" className="brand"><img src="/assets/sova-white.png" alt="SOVA Protocol" /></Link>
+      <nav><a href="#protocol">Protocol</a><a href="#proof">Proof</a><a href="#developers">Developers</a></nav>
+      <div className="network-pill"><i /> Whitechain Sepolia · 1874</div>
+    </header>
 
-  const score = Math.min(1000, Math.round(
-    100 + Math.min(350, (wbt / 1000) * 350) + Math.min(350, weeks * 14.5) + Math.min(200, age * 16.5)
-  ));
+    <section className="hero shell">
+      <div className="hero-copy">
+        <p className="eyebrow">Verifiable reputation / Whitechain</p>
+        <h1>Reputation should be <em>proven.</em><br />Not guessed.</h1>
+        <p className="lede">SOVA turns issuer-signed, schema-bound claims into verifiable onchain attestations. Consumers decide what qualifies through explicit, inspectable policies.</p>
+        <div className="hero-actions"><Link className="button primary" href="/docs/architecture">Explore the protocol ↗</Link><Link className="button" href="/docs/api">Read the API</Link></div>
+        <div className="hero-facts"><span><b>01</b> No universal score</span><span><b>02</b> Policy-driven decisions</span><span><b>03</b> Verifiable onchain</span></div>
+      </div>
+      <div className="proof-card" id="proof">
+        <div className="proof-top"><span>LIVE ATTESTATION</span><span className="active"><i /> ACTIVE</span></div>
+        <div className="proof-mark">S</div>
+        <dl>
+          <div><dt>STATUS</dt><dd className="green">USABLE</dd></div>
+          <div><dt>NETWORK</dt><dd>WHITECHAIN SEPOLIA</dd></div>
+          <div><dt>ISSUER</dt><dd><Short value={ISSUER} /></dd></div>
+          <div><dt>SCHEMA</dt><dd><Short value={SCHEMA} /></dd></div>
+          <div><dt>ATTESTATION</dt><dd><Short value={CLAIM} /></dd></div>
+        </dl>
+        <div className="proof-stamp"><span>REGISTRY VERIFIED</span><b>CHAIN / 1874</b></div>
+      </div>
+    </section>
 
-  const track = (v: number, mn: number, mx: number) => {
-    const p = ((v - mn) / (mx - mn)) * 100;
-    return `linear-gradient(to right, ${BLUE} 0%, ${BLUE} ${p}%, #E5E7EB ${p}%, #E5E7EB 100%)`;
-  };
+    <section className="ecosystem-band"><div className="shell ecosystem-grid">
+      <div><span>ECOSYSTEM</span><strong>WhiteBIT</strong><p>Exchange at the center of the broader ecosystem.</p></div><i>→</i>
+      <div><span>EXECUTION</span><strong>Whitechain</strong><p>EVM-equivalent testnet where SOVA is deployed.</p></div><i>→</i>
+      <div className="accent"><span>REPUTATION</span><strong>SOVA</strong><p>Evidence dApps can verify and evaluate.</p></div><i>→</i>
+      <div><span>DECISION</span><strong>Consumers</strong><p>Lending, access, rewards, and onchain products.</p></div>
+    </div></section>
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const v = email.trim();
-    if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-      setMsg("Please enter a valid email address."); setMsgOk(false); return;
-    }
-    setBusy(true); setMsg("");
-    setTimeout(() => {
-      setBusy(false); setEmail("");
-      setMsg("You're in. We'll notify you when SOVA goes live on Whitechain Mainnet.");
-      setMsgOk(true);
-    }, 900);
-  };
+    <section className="section shell" id="protocol">
+      <div className="section-heading"><div><p className="eyebrow">The reputation layer</p><h2>Evidence in.<br />Decisions out.</h2></div><p>SOVA separates who makes a claim, where it is recorded, and how it is interpreted. One attestation can support different policies without becoming a single opaque number.</p></div>
+      <div className="mechanism-grid">
+        <article><span>01 / ISSUE</span><h3>Issuer-signed</h3><p>An authorized issuer signs a structured claim against a versioned schema.</p><code>SIGN(payload, issuer_key)</code></article>
+        <article><span>02 / VERIFY</span><h3>Registry-backed</h3><p>The registry anchors status, validity, issuer authorization, and revocation onchain.</p><code>registry.isUsable(id)</code></article>
+        <article><span>03 / DECIDE</span><h3>Policy-driven</h3><p>Each consumer declares the evidence it requires. The result stays explainable.</p><code>evaluate(attestation, policy)</code></article>
+      </div>
+    </section>
 
-  return (
-    <div style={{ background: "#fff", minHeight: "100vh", overflowX: "hidden" }}>
+    <section className="policy-section shell">
+      <div><p className="eyebrow">Explicit policy / Not a score</p><h2>Same claim.<br />Different requirements.</h2><p>A consumer can accept a currently usable public attestation, while another can require an additional private disclosure. Both decisions are deterministic—and both can explain why.</p><Link href="/docs/api">See integration patterns →</Link></div>
+      <div className="policy-console">
+        <div className="console-bar"><span>consumer_policy.json</span><span>● ● ●</span></div>
+        <div className="policy-row"><span>schema</span><code><Short value={SCHEMA} /></code></div>
+        <div className="policy-row"><span>attestation_status</span><code className="green">ACTIVE</code></div>
+        <div className="policy-row"><span>registry_usable</span><code className="green">true</code></div>
+        <div className="result accepted"><span>POLICY A</span><div><b>ACCEPTED</b><small>Required public evidence is present.</small></div></div>
+        <div className="result rejected"><span>POLICY B</span><div><b>REJECTED</b><small>Private disclosure was required but not supplied.</small></div></div>
+      </div>
+    </section>
 
-      {/* Ambient Glow */}
-      <div style={{ position: "fixed", top: -250, left: -200, width: 800, height: 800, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(61,111,255,0.055) 0%, transparent 65%)",
-        filter: "blur(80px)", pointerEvents: "none", zIndex: 0 }} />
+    <section className="chain-section"><div className="shell chain-inner">
+      <div><p className="eyebrow">Deployed proof</p><h2>Built on Whitechain Sepolia.</h2><p>SOVA v0.1 is running on Whitechain&apos;s public L2 testnet with registry, schema governance, authorized issuers, relayed issuance, revocation, indexing, and policy evaluation.</p></div>
+      <div className="chain-stats"><div><span>CHAIN ID</span><strong>1874</strong></div><div><span>CAMPAIGN</span><strong>22/22</strong><small>synthetic API checks passed</small></div><div><span>REGISTRY</span><strong><Short value={REGISTRY} /></strong></div><div><span>RELEASE</span><strong>v0.1</strong><small>testnet integration freeze</small></div></div>
+    </div></section>
 
-      <div style={{ position: "relative", zIndex: 1 }}><ParticleBg /></div>
+    <section className="developer-section shell" id="developers">
+      <div><p className="eyebrow">For builders</p><h2>Verify in one request.<br />Decide in the next.</h2><p>Read indexed attestations through the REST API or verify authoritative state directly in the Solidity registry.</p><div className="hero-actions"><Link className="button primary" href="/docs/api">Open API reference</Link><a className="text-link" href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">View GitHub ↗</a></div></div>
+      <pre className="code-window"><span>GET</span> /v1/attestations/{CLAIM.slice(0,10)}…{`\n\n{\n  `}&quot;status&quot;: <b>&quot;ACTIVE&quot;</b>,{`\n  `}&quot;usable&quot;: <b>true</b>,{`\n  `}&quot;chainId&quot;: <strong>1874</strong>{`\n}`}</pre>
+    </section>
 
-      {/* ── Nav ── */}
-      <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto",
-        padding: "20px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <img src="/assets/sova-gradient.png" alt="SOVA Protocol"
-          style={{ height: 18, width: "auto", objectFit: "contain", display: "block" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 12px",
-          borderRadius: 9999, border: "1px solid rgba(0,0,0,0.09)", background: "rgba(255,255,255,0.9)",
-          fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: TXT3 }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#16a34a" }} />
-          Whitechain Sepolia Active
-        </div>
-      </header>
-
-      {/* ══════════════════════════════════════════
-          01. HERO — Split on Desktop, Stack on Mobile
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 1100, margin: "0 auto",
-        padding: "48px 20px 64px" }}>
-        
-        <div className="grid-hero">
-          {/* Left — text + form */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 14px",
-              borderRadius: 9999, border: "1px solid rgba(61,111,255,0.18)", background: "rgba(61,111,255,0.04)",
-              fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
-              letterSpacing: "0.16em", textTransform: "uppercase", color: BLUE, width: "fit-content" }}>
-              Whitechain Reputation Primitive
-            </div>
-
-            <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800,
-              fontSize: "clamp(34px, 4.3vw, 56px)", letterSpacing: "-0.035em",
-              lineHeight: 1.06, color: TXT, margin: 0 }}>
-              <span className="clip-reveal">
-                <span className="slide-up" style={{ display: "block" }}>Identity proves who you are.</span>
-              </span>
-              <span className="clip-reveal">
-                <span className="slide-up-2" style={{ display: "block",
-                  backgroundImage: `linear-gradient(90deg,${BLUE} 0%,#6366f1 55%,#8b5cf6 100%)`,
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  Reputation makes it actionable.
-                </span>
-              </span>
-            </h1>
-
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: TXT2,
-              lineHeight: 1.68, maxWidth: 480, margin: 0 }}>
-              SOVA is the verifiable reputation layer for Whitechain L2 — turning WB Soul identities and historical onchain behavior into machine-readable attestations for DeFi, lending, and rewards. Zero additional KYC required.
-            </p>
-
-            {/* Waitlist Form */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 420 }}>
-              <form onSubmit={submit} style={{ display: "flex", flexDirection: "row", gap: 6, padding: 5,
-                borderRadius: 13, border: "1px solid rgba(0,0,0,0.1)",
-                background: "#fff", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", width: "100%" }}>
-                <input type="text" value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  style={{ flex: 1, minWidth: 0, background: "transparent", border: "none", outline: "none",
-                    padding: "10px 12px", fontSize: 14, color: TXT, fontFamily: "var(--font-sans)" }} />
-                <button type="submit" disabled={busy}
-                  style={{ padding: "10px 18px", borderRadius: 9, border: "none",
-                    background: BLUE, color: "#fff", fontFamily: "var(--font-sans)",
-                    fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    opacity: busy ? 0.6 : 1, whiteSpace: "nowrap" }}>
-                  {busy ? "Joining…" : "Join Waitlist"}
-                </button>
-              </form>
-              {msg && (
-                <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, textAlign: "center",
-                  margin: 0, color: msgOk ? "#16a34a" : "#dc2626" }}>{msg}</p>
-              )}
-            </div>
-
-            {/* Trust pills */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              {["WB Soul Native", "3 Smart Contracts Live", "Whitechain Sepolia"].map((t, i) => (
-                <span key={t} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {i > 0 && <span style={{ color: "#E5E7EB", fontSize: 12 }}>·</span>}
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10,
-                    color: TXT3, letterSpacing: "0.08em", textTransform: "uppercase" }}>{t}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — 3D floating attestation receipt */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <div style={{ perspective: 1200, width: "100%", maxWidth: 320 }}>
-              <AttestationReceipt score={820} isHeroPreview />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          02. ECOSYSTEM ARCHITECTURE & GAP ANALYSIS
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div style={{ borderRadius: 20, border: CARD_B, background: "linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%)",
-          padding: "36px 20px", boxShadow: "0 4px 20px rgba(61,111,255,0.04)" }}>
-          
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE,
-              textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 8 }}>Ecosystem Alignment</div>
-            <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(22px,3.5vw,34px)",
-              letterSpacing: "-0.03em", color: TXT, margin: "0 0 10px" }}>
-              Identity without utility is just a credential.
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: TXT2, maxWidth: 580, margin: "0 auto", lineHeight: 1.6 }}>
-              Whitechain and WhiteBIT provide 5M+ users and WB Soul identity. SOVA provides the machine-readable reputation layer that makes identity actionable for dApps.
-            </p>
-          </div>
-
-          {/* Stack Pipeline Diagram */}
-          <div className="grid-pipeline">
-            {[
-              { title: "WhiteBIT", sub: "5M+ Users", bg: "#fff" },
-              { title: "Whitechain", sub: "Distribution L2", bg: "#fff" },
-              { title: "WB Soul", sub: "Identity Anchor", bg: "#fff" },
-              { title: "SOVA Engine", sub: "Reputation Layer", bg: "linear-gradient(135deg, #3D6FFF 0%, #6366f1 100%)", color: "#fff" },
-              { title: "Whitechain dApps", sub: "Lending, DEX, Drops", bg: "#fff" },
-            ].map((item) => (
-              <div key={item.title} style={{ display: "flex", flexDirection: "column", gap: 4, padding: "14px 10px",
-                borderRadius: 12, border: item.color ? "none" : BORDER, background: item.bg,
-                color: item.color || TXT, textAlign: "center", boxShadow: item.color ? "0 4px 14px rgba(61,111,255,0.25)" : "none" }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13 }}>{item.title}</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, opacity: 0.8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{item.sub}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* User A vs User B Behavioral Contrast */}
-          <div className="grid-2col" style={{ marginTop: 28 }}>
-            <div style={{ padding: "20px 20px", borderRadius: 14, background: "#fff", border: BORDER }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, color: TXT }}>User A (Basic Credential)</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#f97316", background: "rgba(249,115,22,0.1)", padding: "2px 6px", borderRadius: 4 }}>Unrated</span>
-              </div>
-              <ul style={{ margin: 0, padding: "0 0 0 14px", fontFamily: "var(--font-mono)", fontSize: 11.5, color: TXT2, lineHeight: 1.7 }}>
-                <li>WB Soul Verified ✓</li>
-                <li>2 days active onchain</li>
-                <li>3 total transactions</li>
-                <li>dApp Utility: <span style={{ color: "#9CA3AF" }}>Default high risk</span></li>
-              </ul>
-            </div>
-
-            <div style={{ padding: "20px 20px", borderRadius: 14, background: "#fff", border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 2px 10px rgba(16,185,129,0.06)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, color: TXT }}>User B (SOVA Verified)</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#10b981", background: "rgba(16,185,129,0.1)", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>Score: 820 / Elite</span>
-              </div>
-              <ul style={{ margin: 0, padding: "0 0 0 14px", fontFamily: "var(--font-mono)", fontSize: 11.5, color: TXT2, lineHeight: 1.7 }}>
-                <li>WB Soul Verified ✓</li>
-                <li>18 months holding longevity</li>
-                <li>47 active weeks & healthy borrow history</li>
-                <li>dApp Utility: <span style={{ color: "#10b981", fontWeight: 700 }}>Lower collateral & VIP fee tier</span></li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          03. HOW IT WORKS
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE,
-            textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 10 }}>How it works</div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800,
-            fontSize: "clamp(24px,4vw,36px)", letterSpacing: "-0.03em", color: TXT, margin: 0 }}>
-            From identity to composable proof<br />in three steps.
-          </h2>
-        </div>
-
-        <div className="how-it-works-flow">
-          {[
-            { icon: <IconSoul />,    n: "01", title: "WB Soul Resolution",  body: "Resolves your WB Soul ID and associated wallets into a single behavioral history without extra KYC steps." },
-            { icon: <IconAnalyze />, n: "02", title: "Behavioral Scoring",   body: "Analyzes retention, active weeks, holding longevity, and transaction health into a composable 0–1000 SoulScore." },
-            { icon: <IconAttest />,  n: "03", title: "Onchain Attestation",  body: "Commits salted, privacy-preserving proofs onchain — callable by any dApp via a single Solidity line." },
-          ].map(({ icon, n, title, body }, i) => (
-            <div key={title} style={{ display: "contents" }}>
-              <div style={{ padding: "24px 20px", borderRadius: 16, border: BORDER,
-                background: CARD, display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 10,
-                    background: "rgba(61,111,255,0.07)", display: "flex",
-                    alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    {icon}
-                  </div>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: TXT3, letterSpacing: "0.1em" }}>{n}</span>
-                </div>
-                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16, color: TXT, margin: 0 }}>{title}</h3>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2, lineHeight: 1.6, margin: 0 }}>{body}</p>
-              </div>
-              {i < 2 && (
-                <div key={`a-${i}`} className="arrow-divider">
-                  <ArrowRight />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          04. INTERACTIVE SIMULATOR
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div className="grid-simulator" style={{ border: BORDER }}>
-
-          {/* Controls */}
-          <div style={{ padding: "32px 24px", background: CARD,
-            display: "flex", flexDirection: "column", gap: 24, justifyContent: "center" }}>
-            <div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE,
-                textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 8 }}>Live Simulator</div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 24,
-                letterSpacing: "-0.03em", color: TXT, margin: "0 0 6px" }}>
-                Simulate your SoulScore
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2,
-                margin: 0, lineHeight: 1.5 }}>
-                Adjust behavioral parameters to evaluate how SOVA updates onchain credit profiles.
-              </p>
-            </div>
-            {[
-              { label: "WBT Balance",        val: wbt,   mn: 10, mx: 1000, unit: `${wbt} WBT`,                           set: setWbt },
-              { label: "Active Weeks",       val: weeks, mn: 1,  mx: 52,   unit: `${weeks} active week${weeks !== 1 ? "s" : ""}`, set: setWeeks },
-              { label: "Onchain Longevity",  val: age,   mn: 1,  mx: 24,   unit: `${age} month${age !== 1 ? "s" : ""}`,        set: setAge },
-            ].map(({ label, val, mn, mx, unit, set }) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ display: "flex", justifyContent: "space-between",
-                  fontFamily: "var(--font-mono)", fontSize: 11 }}>
-                  <span style={{ color: TXT3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</span>
-                  <span style={{ color: TXT, fontWeight: 700 }}>{unit}</span>
-                </div>
-                <input type="range" min={mn} max={mx} value={val}
-                  onChange={e => set(Number(e.target.value))}
-                  className="slider" style={{ background: track(val, mn, mx) }} />
-              </div>
-            ))}
-          </div>
-
-          {/* Receipt */}
-          <div style={{ padding: "32px 20px", background: "#fff",
-            display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <AttestationReceipt score={score} />
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          05. BUILT FOR — Ecosystem Use Cases
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE,
-            textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 10 }}>Ecosystem Utility</div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800,
-            fontSize: "clamp(24px,4vw,36px)", letterSpacing: "-0.03em", color: TXT, margin: 0 }}>
-            One primitive. Four dApp applications.
-          </h2>
-        </div>
-
-        <div className="grid-2col">
-          {[
-            {
-              tag: "Lending & Money Markets",
-              title: "Risk-Based Collateral Ratios",
-              body: "Optimize collateral requirements and borrow rates based on verified historical repayment consistency rather than high uniform liquidations.",
-            },
-            {
-              tag: "DEXs & Liquidity Hubs",
-              title: "Sybil-Resistant VIP Fee Tiers",
-              body: "Reward loyal Whitechain traders with tiered fee discounts based on long-term retention and ecosystem activity.",
-            },
-            {
-              tag: "Airdrops & Rewards",
-              title: "Targeted Ecosystem Rewards",
-              body: "Distribute grants and rewards directly to users with proven multi-month retention (e.g. 47 active weeks vs 2-day-old bot accounts).",
-            },
-            {
-              tag: "Solidity Integration",
-              title: "1-Line Smart Contract Query",
-              body: "Query `uint256 score = sova.getScore(soulId)` directly inside Solidity. Zero middleware, zero offchain oracle delay.",
-            },
-          ].map(({ tag, title, body }) => (
-            <SpotlightCard key={tag}
-              className="spot-card"
-              style={{
-                background: CARD,
-                border: BORDER,
-                padding: "24px 20px",
-                display: "flex", flexDirection: "column", gap: 12,
-                borderRadius: 16,
-              }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700,
-                color: BLUE, textTransform: "uppercase", letterSpacing: "0.2em", position: "relative", zIndex: 10 }}>
-                {tag}
-              </span>
-              <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 17,
-                color: TXT, margin: 0, lineHeight: 1.3, position: "relative", zIndex: 10 }}>
-                {title}
-              </h3>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2,
-                lineHeight: 1.6, margin: 0, position: "relative", zIndex: 10 }}>
-                {body}
-              </p>
-            </SpotlightCard>
-          ))}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          06. DEVELOPER INTEGRATION & PROOF
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div className="dev-section-grid">
-          
-          {/* Left: Code Snippet */}
-          <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: "24px 20px", color: "#F8FAFC" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8", letterSpacing: "0.1em" }}>ISOVARegistry.sol</span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#38BDF8" }}>Solidity v0.8.20</span>
-            </div>
-            <pre style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, lineHeight: 1.6, margin: 0, color: "#E2E8F0", overflowX: "auto" }}>
-              <code>{`// dApp Solidity Query Example
-import "./ISOVARegistry.sol";
-
-contract LendingPool {
-    ISOVARegistry public immutable sova;
-
-    function getBorrowLimit(uint256 soulId) 
-        external view returns (uint256) 
-    {
-        (uint256 score, uint8 status) = 
-            sova.getScore(soulId);
-            
-        if (score >= 750) return 150000;
-        return 50000;
-    }
-}`}</code>
-            </pre>
-          </div>
-
-          {/* Right: Deployed Smart Contracts */}
-          <div style={{ borderRadius: 16, border: BORDER, background: CARD, padding: "24px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 6 }}>Deployed Infrastructure</div>
-              <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, color: TXT, margin: 0 }}>Whitechain Sepolia Contracts</h3>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { name: "SovaAttestationRegistry", addr: "0x3A6c...f8e2" },
-                { name: "SovaTimelockMultisig",   addr: "0x9B1d...a341" },
-                { name: "SovaNetworkProof",       addr: "0xC2f4...8b09" },
-              ].map(c => (
-                <div key={c.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", borderRadius: 8, background: "#fff", border: BORDER }}>
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: TXT }}>{c.name}</span>
-                  <a href="https://testnet.whitechain.io" target="_blank" style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, color: BLUE, textDecoration: "none" }}>{c.addr} ↗</a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          07. MILESTONE ROADMAP
-      ══════════════════════════════════════════ */}
-      <section style={{ position: "relative", zIndex: 5, maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-        <div style={{ marginBottom: 36 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: BLUE,
-            textTransform: "uppercase", letterSpacing: "0.24em", marginBottom: 10 }}>Roadmap</div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800,
-            fontSize: "clamp(24px,4vw,36px)", letterSpacing: "-0.03em", color: TXT, margin: 0 }}>
-            Roadmap to Whitechain Mainnet.
-          </h2>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 0,
-          border: BORDER, borderRadius: 16, overflow: "hidden" }}>
-          {[
-            { n: "00", phase: "Reconnaissance",  status: "Done",    body: "Whitechain Sepolia validated. WB Soul identity contracts mapped. SOVA Registry deployed and verified onchain." },
-            { n: "01", phase: "Specification",   status: "Active",  body: "Freezing v0.1 scoring parameters, time-decay weights, and anti-gaming rules in alignment with Whitechain Q3 2026 Testnet." },
-            { n: "02", phase: "Smart Contracts", status: "Next",    body: "Deploying SoulReader and ReputationOracle contracts. Full security test coverage & Auditor briefing document." },
-            { n: "03", phase: "Data Engine",     status: "Planned", body: "Production WB Soul event indexer. Feature store, scoring pipeline, and GraphQL query API." },
-            { n: "04", phase: "Product Release", status: "Planned", body: "Public reputation dashboard, dApp SDK, and reference lending integration." },
-            { n: "05", phase: "Mainnet Launch",  status: "Planned", body: "Hacken audit completion and deployment to Whitechain Mainnet for Q4 2026." },
-          ].map(({ n, phase, status, body }, i) => {
-            const isDone = status === "Done", isActive = status === "Active", isNext = status === "Next";
-            const badgeClr = isDone ? "#16a34a" : isActive ? BLUE : isNext ? "#d97706" : "#9CA3AF";
-            const badgeBg  = isDone ? "rgba(22,163,74,0.08)" : isActive ? "rgba(61,111,255,0.08)" : isNext ? "rgba(217,119,6,0.08)" : "rgba(0,0,0,0.04)";
-            return (
-              <div key={n} style={{ display: "grid", gridTemplateColumns: "40px 1fr auto", gap: 14,
-                padding: "18px 20px", alignItems: "center",
-                background: isActive ? "rgba(61,111,255,0.025)" : "#fff",
-                borderBottom: i < 5 ? "1px solid rgba(0,0,0,0.07)" : "none" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 700,
-                  color: "rgba(0,0,0,0.12)", lineHeight: 1 }}>{n}</span>
-                <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14,
-                    color: TXT, marginBottom: 2 }}>{phase}</div>
-                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: TXT2,
-                    lineHeight: 1.5 }}>{body}</div>
-                </div>
-                <span style={{ display: "flex", alignItems: "center", gap: 5,
-                  fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700,
-                  textTransform: "uppercase", letterSpacing: "0.1em",
-                  color: badgeClr, background: badgeBg, padding: "3px 8px",
-                  borderRadius: 4, whiteSpace: "nowrap" }}>
-                  {isActive && <span style={{ width: 4, height: 4, borderRadius: "50%", background: BLUE }} />}
-                  {status}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          08. FOOTER
-      ══════════════════════════════════════════ */}
-      <footer style={{ position: "relative", zIndex: 5, borderTop: "1px solid rgba(0,0,0,0.07)",
-        background: "#F7F7F8" }}>
-        <div className="grid-footer" style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 20px 0",
-          alignItems: "start" }}>
-
-          {/* Brand + columns */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <img src="/assets/sova-gradient.png" alt="SOVA Protocol"
-                style={{ height: 16, width: "auto", display: "block",
-                  objectFit: "contain", objectPosition: "left" }} />
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT3,
-                lineHeight: 1.6, maxWidth: 340, margin: 0 }}>
-                The verifiable onchain reputation primitive for Whitechain L2.
-              </p>
-            </div>
-            <div className="footer-directory-grid">
-              {[
-                { title: "Protocol",   links: [["Whitechain Sepolia", "https://testnet.whitechain.io"], ["Registry Specs", "/docs/architecture"], ["Soulbound ID", "/docs/architecture"]] },
-                { title: "Developers", links: [["GitHub", "https://github.com/Dexanode/sova-protocol"], ["Solidity Query API", "/docs/api"], ["Architecture Docs", "/docs/architecture"]] },
-                { title: "Community",  links: [["Twitter / X", "https://x.com/sovaprotocol"], ["Telegram", "https://t.me/sovaprotocol"], ["Discord", "https://discord.gg/sovaprotocol"]] },
-              ].map(({ title, links }) => (
-                <div key={title} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <h4 style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700, color: TXT3,
-                    textTransform: "uppercase", letterSpacing: "0.2em", margin: 0 }}>{title}</h4>
-                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-                    {links.map(([label, href]) => (
-                      <li key={label}><a href={href} target={href.startsWith("http") ? "_blank" : undefined}
-                        style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2,
-                          textDecoration: "none", transition: "color .15s" }}
-                        onMouseEnter={e => (e.currentTarget.style.color = TXT)}
-                        onMouseLeave={e => (e.currentTarget.style.color = TXT2)}>{label}</a></li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA card */}
-          <div style={{ borderRadius: 16, padding: "24px 20px",
-            border: "1px solid rgba(61,111,255,0.18)", background: "#fff",
-            boxShadow: "0 2px 12px rgba(61,111,255,0.06)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#16a34a" }} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, fontWeight: 700,
-                color: "#16a34a", textTransform: "uppercase", letterSpacing: "0.18em" }}>Whitechain Sepolia Live</span>
-            </div>
-            <h4 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 16,
-              color: TXT, margin: "0 0 8px", lineHeight: 1.35 }}>
-              Build reputation-aware dApps.
-            </h4>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2,
-              lineHeight: 1.55, margin: "0 0 16px" }}>
-              Join the waitlist for early developer access and SDK documentation.
-            </p>
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none",
-                background: BLUE, color: "#fff", fontFamily: "var(--font-sans)",
-                fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "filter .15s" }}
-              onMouseEnter={e => (e.currentTarget.style.filter = "brightness(1.1)")}
-              onMouseLeave={e => (e.currentTarget.style.filter = "brightness(1)")}>
-              Join Waitlist
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom bar */}
-        <div style={{ maxWidth: 1100, margin: "32px auto 0", padding: "16px 20px 24px",
-          borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex",
-          justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: TXT3 }}>
-            2026 © Sova Protocol, onchain
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <a href="https://github.com/Dexanode/sova-protocol" target="_blank" aria-label="GitHub"
-              style={{ color: TXT3, transition: "color .2s", display: "flex" }}
-              onMouseEnter={e => (e.currentTarget.style.color = TXT)}
-              onMouseLeave={e => (e.currentTarget.style.color = TXT3)}>
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.53 1.03 1.53 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.55-1.11-4.55-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" clipRule="evenodd"/>
-              </svg>
-            </a>
-            <a href="https://x.com/sovaprotocol" target="_blank" aria-label="X"
-              style={{ color: TXT3, transition: "color .2s", display: "flex" }}
-              onMouseEnter={e => (e.currentTarget.style.color = TXT)}
-              onMouseLeave={e => (e.currentTarget.style.color = TXT3)}>
-              <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+    <aside className="notice shell"><b>TESTNET NOTICE</b><span>SOVA v0.1 is testnet software. Independent security audit is pending. Do not use it for production financial decisions.</span></aside>
+    <footer><div className="shell footer-inner"><div><img src="/assets/sova-white.png" alt="SOVA Protocol" /><p>Verifiable reputation infrastructure for onchain products.</p></div><div><span>PROTOCOL</span><Link href="/docs/architecture">Architecture</Link><Link href="/docs/api">API reference</Link></div><div><span>ECOSYSTEM</span><a href="https://whitechain.io" target="_blank" rel="noreferrer">Whitechain ↗</a><a href="https://whitebit.com" target="_blank" rel="noreferrer">WhiteBIT ↗</a></div><div><span>BUILD</span><a href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">GitHub ↗</a><a href="mailto:hello@sovaprotocol.xyz">Contact</a></div></div><div className="shell footer-bottom"><span>© 2026 SOVA Protocol</span><span>Independent project · Ecosystem references do not imply endorsement.</span></div></footer>
+  </main>;
 }

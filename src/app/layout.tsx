@@ -7,14 +7,17 @@ const chakraPetch  = Chakra_Petch({ subsets: ["latin"], variable: "--font-displa
 const spaceMono    = Space_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400","700"] });
 
 export const metadata: Metadata = {
-  title: "SOVA Protocol — Verifiable Reputation for Onchain Finance",
-  description: "Turn your onchain history into a verifiable, privacy-preserving credit score. Built natively on Whitechain L2.",
+  metadataBase: new URL("https://sovaprotocol.xyz"),
+  title: "SOVA Protocol — Verifiable Reputation on Whitechain",
+  description: "Issuer-signed, schema-bound onchain attestations for explicit and explainable consumer policies. Live on Whitechain Sepolia.",
+  openGraph: { title: "SOVA Protocol — Reputation should be proven", description: "Verifiable reputation infrastructure, live on Whitechain Sepolia.", url: "https://sovaprotocol.xyz", siteName: "SOVA Protocol", type: "website" },
+  twitter: { card: "summary", title: "SOVA Protocol — Reputation should be proven", description: "Verifiable reputation infrastructure, live on Whitechain Sepolia." },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${chakraPetch.variable} ${spaceMono.variable} antialiased`}>
-      <body style={{ background: "#fff", color: "#0A0A0A", margin: 0 }}>
+      <body>
         {children}
       </body>
     </html>
