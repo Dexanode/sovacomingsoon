@@ -11,6 +11,110 @@ const TXT3   = "#94A3B8";
 const BORDER = "1px solid rgba(0,0,0,0.08)";
 const CARD   = "#F8FAFC";
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      style={{
+        fontFamily: "var(--font-mono)",
+        fontSize: 10,
+        fontWeight: 700,
+        color: copied ? "#10B981" : "#38BDF8",
+        background: "rgba(255,255,255,0.08)",
+        border: "1px solid rgba(255,255,255,0.15)",
+        borderRadius: 4,
+        padding: "3px 8px",
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+      }}
+    >
+      {copied ? "✓ Copied!" : "Copy Code"}
+    </button>
+  );
+}
+
+const SOLIDITY_INTERFACE_CODE = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+interface ISOVARegistry {
+    enum AttestationStatus {
+        NONE,
+        ACTIVE,
+        EXPIRED,
+        REVOKED,
+        ISSUER_SUSPENDED,
+        ISSUER_INACTIVE,
+        ISSUER_REVOKED,
+        SCHEMA_INACTIVE
+    }
+
+    struct AttestationView {
+        bytes32 attestationId;
+        bytes32 subjectId;
+        bytes32 schemaId;
+        bytes32 dataHash;
+        address issuer;
+        uint64 issuedAt;
+        uint64 expiresAt;
+        uint64 issuerEpoch;
+        uint64 revokedAt;
+        bytes32 revocationReason;
+        AttestationStatus status;
+        bool usable;
+    }
+
+    function getAttestationView(bytes32 attestationId) external view returns (AttestationView memory);
+    function isUsable(bytes32 attestationId) external view returns (bool);
+}`;
+
+const LENDING_POOL_EXAMPLE = `contract WhitechainLendingPool {
+    ISOVARegistry public immutable registry;
+
+    constructor(address _registry) {
+        registry = ISOVARegistry(_registry);
+    }
+
+    function getBorrowCollateralRatio(bytes32 attestationId) external view returns (uint256 ratioBps) {
+        // 1. Authoritative check onchain
+        require(registry.isUsable(attestationId), "SOVA: Attestation unusable or revoked");
+
+        ISOVARegistry.AttestationView memory viewData = registry.getAttestationView(attestationId);
+        
+        // 2. Active status & expiration validation
+        require(viewData.status == ISOVARegistry.AttestationStatus.ACTIVE, "SOVA: Not active");
+        require(block.timestamp <= viewData.expiresAt, "SOVA: Attestation expired");
+
+        // 3. Dynamic collateral ratio optimization (e.g. 110% vs 150%)
+        return 11000; // 110% collateral for verified high-reputation souls
+    }
+}`;
+
+const CURL_EXAMPLE = `curl -X GET "https://api.sovaprotocol.xyz/v1/attestations/0x3a6c8f...e2" -H "Accept: application/json"`;
+
+const TS_SDK_EXAMPLE = `import { SovaReadClient } from "@sova-protocol/sdk";
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider("https://rpc-testnet.whitechain.io");
+const client = new SovaReadClient({
+  registryAddress: "0x3A6c8f...e2",
+  provider,
+});
+
+// Direct contract read with salted disclosure verification
+const isVerified = await client.verifyDisclosure({
+  attestationId: "0x...",
+  encodedPayload: "0x...",
+  salt: "0x...",
+});
+
+console.log("Disclosure Verified Onchain:", isVerified);`;
+
 export default function ApiDocsPage() {
   const [tab, setTab] = useState<"solidity" | "rest" | "sdk">("solidity");
 
@@ -90,44 +194,12 @@ export default function ApiDocsPage() {
 
             {/* Solidity Interface snippet */}
             <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
-                <span>ISOVARegistry.sol</span>
-                <span>Solidity v0.8.20</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+                <span>ISOVARegistry.sol (Solidity v0.8.20)</span>
+                <CopyButton text={SOLIDITY_INTERFACE_CODE} />
               </div>
               <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
-                <code>{`// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-interface ISOVARegistry {
-    enum AttestationStatus {
-        NONE,
-        ACTIVE,
-        EXPIRED,
-        REVOKED,
-        ISSUER_SUSPENDED,
-        ISSUER_INACTIVE,
-        ISSUER_REVOKED,
-        SCHEMA_INACTIVE
-    }
-
-    struct AttestationView {
-        bytes32 attestationId;
-        bytes32 subjectId;
-        bytes32 schemaId;
-        bytes32 dataHash;
-        address issuer;
-        uint64 issuedAt;
-        uint64 expiresAt;
-        uint64 issuerEpoch;
-        uint64 revokedAt;
-        bytes32 revocationReason;
-        AttestationStatus status;
-        bool usable;
-    }
-
-    function getAttestationView(bytes32 attestationId) external view returns (AttestationView memory);
-    function isUsable(bytes32 attestationId) external view returns (bool);
-}`}</code>
+                <code>{SOLIDITY_INTERFACE_CODE}</code>
               </pre>
             </div>
 
@@ -137,28 +209,12 @@ interface ISOVARegistry {
                 Example: Reputation-Aware Lending Pool
               </h3>
               <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+                  <span>WhitechainLendingPool.sol</span>
+                  <CopyButton text={LENDING_POOL_EXAMPLE} />
+                </div>
                 <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
-                  <code>{`contract WhitechainLendingPool {
-    ISOVARegistry public immutable registry;
-
-    constructor(address _registry) {
-        registry = ISOVARegistry(_registry);
-    }
-
-    function getBorrowCollateralRatio(bytes32 attestationId) external view returns (uint256 ratioBps) {
-        // 1. Authoritative check onchain
-        require(registry.isUsable(attestationId), "SOVA: Attestation unusable or revoked");
-
-        ISOVARegistry.AttestationView memory viewData = registry.getAttestationView(attestationId);
-        
-        // 2. Active status & expiration validation
-        require(viewData.status == ISOVARegistry.AttestationStatus.ACTIVE, "SOVA: Not active");
-        require(block.timestamp <= viewData.expiresAt, "SOVA: Attestation expired");
-
-        // 3. Dynamic collateral ratio optimization (e.g. 110% vs 150%)
-        return 11000; // 110% collateral for verified high-reputation souls
-    }
-}`}</code>
+                  <code>{LENDING_POOL_EXAMPLE}</code>
                 </pre>
               </div>
             </div>
@@ -217,9 +273,12 @@ interface ISOVARegistry {
 
             {/* Example cURL */}
             <div>
-              <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, margin: "0 0 10px" }}>Example cURL Query</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, margin: 0 }}>Example cURL Query</h3>
+                <CopyButton text={CURL_EXAMPLE} />
+              </div>
               <div style={{ borderRadius: 14, border: "1px solid #1E293B", background: "#0F172A", padding: 20, color: "#38BDF8", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-                curl -X GET &quot;https://api.sovaprotocol.xyz/v1/attestations/0x3a6c...f8e2&quot; -H &quot;Accept: application/json&quot;
+                {CURL_EXAMPLE}
               </div>
             </div>
           </section>
@@ -238,24 +297,12 @@ interface ISOVARegistry {
             </div>
 
             <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+                <span>TypeScript SDK Example</span>
+                <CopyButton text={TS_SDK_EXAMPLE} />
+              </div>
               <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
-                <code>{`import { SovaReadClient } from "@sova-protocol/sdk";
-import { ethers } from "ethers";
-
-const provider = new ethers.JsonRpcProvider("https://rpc-testnet.whitechain.io");
-const client = new SovaReadClient({
-  registryAddress: "0x3A6c...f8e2",
-  provider,
-});
-
-// Direct contract read with salted disclosure verification
-const isVerified = await client.verifyDisclosure({
-  attestationId: "0x...",
-  encodedPayload: "0x...",
-  salt: "0x...",
-});
-
-console.log("Disclosure Verified Onchain:", isVerified);`}</code>
+                <code>{TS_SDK_EXAMPLE}</code>
               </pre>
             </div>
           </section>

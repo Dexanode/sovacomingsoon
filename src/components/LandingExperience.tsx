@@ -79,7 +79,7 @@ export default function LandingExperience() {
   const [light, setLight] = useState(false); const [caseIndex, setCaseIndex] = useState(0); const reduce = useReducedMotion();
   return <main className={styles.site} data-theme={light ? "light" : "dark"}>
     <Lightfall />
-    <header className={styles.nav}><Link href="/" className={styles.brand}><Image src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"} alt="SOVA Protocol" width={138} height={48} priority /></Link><nav aria-label="Primary navigation"><a href="#protocol">Protocol</a><a href="#proof">Proof</a><a href="#developers">Developers</a></nav><div className={styles.navActions}><button type="button" className={styles.themeButton} onClick={() => setLight((value) => !value)} aria-label={`Switch to ${light ? "dark" : "light"} mode`} title={`Switch to ${light ? "dark" : "light"} mode`}><motion.span key={light ? "moon" : "sun"} initial={reduce ? false : { opacity: 0, rotate: -45, scale: .75 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ duration: .22 }}>{light ? <Moon size={18} weight="regular" /> : <Sun size={18} weight="regular" />}</motion.span></button><a className={styles.appLink} href="https://app.sovaprotocol.xyz">Open dApp</a></div></header>
+    <header className={styles.nav}><Link href="/" className={styles.brand}><Image src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"} alt="SOVA Protocol" width={138} height={48} priority /></Link><nav aria-label="Primary navigation"><a href="#protocol">Protocol</a><a href="#proof">Proof</a><a href="#developers">Developers</a><a href="#faq">FAQ</a></nav><div className={styles.navActions}><button type="button" className={styles.themeButton} onClick={() => setLight((value) => !value)} aria-label={`Switch to ${light ? "dark" : "light"} mode`} title={`Switch to ${light ? "dark" : "light"} mode`}><motion.span key={light ? "moon" : "sun"} initial={reduce ? false : { opacity: 0, rotate: -45, scale: .75 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ duration: .22 }}>{light ? <Moon size={18} weight="regular" /> : <Sun size={18} weight="regular" />}</motion.span></button><a className={styles.appLink} href="https://app.sovaprotocol.xyz">Open dApp</a></div></header>
 
     <section className={styles.hero}><motion.div className={styles.heroCopy} initial={reduce ? false : "hidden"} animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}><motion.p variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}>Verifiable reputation on Whitechain</motion.p><motion.h1 variants={{ hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } }}>Evidence people carry.<br />Trust built for <TextLoop /></motion.h1><motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className={styles.heroLede}>Issuer-signed evidence helps Whitechain apps evaluate trust through transparent policies, without a hidden universal score.</motion.div><motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className={styles.heroActions}><SpecularLink href="#protocol">Explore protocol</SpecularLink><Link className={styles.secondaryButton} href="/docs/architecture">Read architecture</Link></motion.div></motion.div><motion.div className={styles.heroVisual} initial={reduce ? false : { opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}><OrbitNetwork light={light} /></motion.div></section>
 
@@ -94,6 +94,39 @@ export default function LandingExperience() {
     <section className={styles.policySection}><Reveal className={styles.policyHeading}><p>Consumer policy</p><h2>The same claim can pass here and fail there.</h2><span>That is a feature. Each product publishes what it requires, and SOVA returns the reason.</span></Reveal><Reveal className={styles.policyCarousel}><div className={styles.carouselTop}><span>Policy examples</span><div><button type="button" aria-label="Previous policy" onClick={() => setCaseIndex((caseIndex + 1) % 2)}>←</button><button type="button" aria-label="Next policy" onClick={() => setCaseIndex((caseIndex + 1) % 2)}>→</button></div></div><AnimatePresence mode="wait"><motion.div key={caseIndex} className={styles.policySlide} initial={reduce ? false : { opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={reduce ? undefined : { opacity: 0, x: -30 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}><div><span>{caseIndex === 0 ? "Public lending policy" : "Private credit policy"}</span><h3>{caseIndex === 0 ? "Accepted" : "Rejected"}</h3><p>{caseIndex === 0 ? "The claim is active, fresh, schema-matched, and issued by an accepted authority." : "The public claim passed, but the required private disclosure was not supplied."}</p></div><dl><div><dt>Registry usable</dt><dd>True</dd></div><div><dt>Accepted issuer</dt><dd>Matched</dd></div><div><dt>Private disclosure</dt><dd className={caseIndex === 0 ? styles.optional : styles.failed}>{caseIndex === 0 ? "Optional" : "Missing"}</dd></div></dl></motion.div></AnimatePresence></Reveal></section>
 
     <section className={styles.developerSection} id="developers"><Reveal><p>For builders</p><h2>Read evidence.<br />Make the decision.</h2><span>Integrate indexed attestations through REST, or verify authoritative state directly against the Solidity registry.</span><div className={styles.heroActions}><SpecularLink href="/docs/api">Open API reference</SpecularLink><a className={styles.secondaryButton} href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">View GitHub</a></div></Reveal><Reveal className={styles.codeWindow}><div><span>GET</span><small>/v1/attestations/{CLAIM.slice(0, 8)}...</small></div><pre>{`{\n  "status": "ACTIVE",\n  "usable": true,\n  "chainId": 1874\n}`}</pre><i>200 OK</i></Reveal></section>
+
+    <section className={styles.faqSection} id="faq">
+      <Reveal className={styles.sectionIntro}>
+        <p>Frequently Asked Questions</p>
+        <h2>Everything you need to know about SOVA Protocol.</h2>
+        <span>Common questions from Whitechain developers, auditors, and ecosystem partners.</span>
+      </Reveal>
+      <div className={styles.faqGrid}>
+        {[
+          {
+            q: "Does SOVA require additional KYC checks?",
+            a: "No. WB Soul (backed by WhiteBIT) serves as the primary identity guarantor on Whitechain. SOVA reads public WB Soul registrations and associated wallet signals to compute behavioral reputation without requiring any extra KYC or document submission."
+          },
+          {
+            q: "Is sensitive financial data exposed onchain?",
+            a: "Never. SOVA uses salted cryptographic attestations. Raw transaction logs and financial metrics remain 100% offchain in private indexers, while only non-invertible hashes and verified statuses are recorded onchain."
+          },
+          {
+            q: "How does SOVA differ from a traditional credit score?",
+            a: "SOVA is a policy-driven reputation layer, not a single opaque score. Each consumer dApp defines its own explicit evaluation criteria (e.g., minimum WBT hold, required active weeks, accepted issuers). The same claim can pass for lending while requiring additional proof for VIP rewards."
+          },
+          {
+            q: "How do Whitechain dApps query SOVA in Solidity?",
+            a: "dApps execute a single, gas-efficient view function: ISOVARegistry(registry).isUsable(attestationId) or getAttestationView(attestationId). No external oracles or offchain delays are required."
+          }
+        ].map(item => (
+          <Reveal key={item.q} className={styles.faqCard}>
+            <h3>{item.q}</h3>
+            <p>{item.a}</p>
+          </Reveal>
+        ))}
+      </div>
+    </section>
 
     <aside className={styles.notice}><b>Testnet notice</b><span>SOVA v0.1 is testnet software. Independent security audit is pending. Do not use it for production financial decisions.</span></aside>
     <footer className={styles.footer}><div><Image src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"} alt="SOVA Protocol" width={135} height={46} /><p>Verifiable reputation infrastructure for onchain products.</p></div><div><span>Protocol</span><Link href="/docs/architecture">Architecture</Link><Link href="/docs/api">API reference</Link></div><div><span>Ecosystem</span><a href="https://whitechain.io" target="_blank" rel="noreferrer">Whitechain ↗</a><a href="https://whitebit.com" target="_blank" rel="noreferrer">WhiteBIT ↗</a></div><div><span>Build</span><a href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">GitHub ↗</a><a href="mailto:hello@sovaprotocol.xyz">Contact</a></div><small>© 2026 SOVA Protocol. Independent project. Ecosystem references do not imply endorsement.</small></footer>
