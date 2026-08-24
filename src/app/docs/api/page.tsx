@@ -1,15 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-
-/* ── Design tokens ── */
-const BLUE   = "#3D6FFF";
-const TXT    = "#0A0A0A";
-const TXT2   = "#475569";
-const TXT3   = "#94A3B8";
-const BORDER = "1px solid rgba(0,0,0,0.08)";
-const CARD   = "#F8FAFC";
+import { Moon, Sun, Check, Copy } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "framer-motion";
+import styles from "@/components/landing-experience.module.css";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -21,20 +17,23 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
+      type="button"
       style={{
-        fontFamily: "var(--font-mono)",
-        fontSize: 10,
-        fontWeight: 700,
-        color: copied ? "#10B981" : "#38BDF8",
-        background: "rgba(255,255,255,0.08)",
-        border: "1px solid rgba(255,255,255,0.15)",
-        borderRadius: 4,
-        padding: "3px 8px",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        font: "700 11px var(--font-mono)",
+        color: copied ? "var(--good)" : "var(--accent)",
+        background: "var(--surface-2)",
+        border: "1px solid var(--line)",
+        borderRadius: 6,
+        padding: "5px 10px",
         cursor: "pointer",
-        transition: "all 0.15s ease",
+        transition: "all 0.2s ease",
       }}
     >
-      {copied ? "✓ Copied!" : "Copy Code"}
+      {copied ? <Check size={14} weight="bold" /> : <Copy size={14} weight="regular" />}
+      <span>{copied ? "Copied" : "Copy"}</span>
     </button>
   );
 }
@@ -95,14 +94,15 @@ const LENDING_POOL_EXAMPLE = `contract WhitechainLendingPool {
     }
 }`;
 
-const CURL_EXAMPLE = `curl -X GET "https://api.sovaprotocol.xyz/v1/attestations/0x3a6c8f...e2" -H "Accept: application/json"`;
+const CURL_EXAMPLE = `curl -X GET "https://api.sovaprotocol.xyz/v1/attestations/0x2bc2f60ae0fbd643015653010057be9f6f3ae1585aa8dc514c415b54c57f1bc1" \\
+  -H "Accept: application/json"`;
 
 const TS_SDK_EXAMPLE = `import { SovaReadClient } from "@sova-protocol/sdk";
 import { ethers } from "ethers";
 
 const provider = new ethers.JsonRpcProvider("https://rpc-testnet.whitechain.io");
 const client = new SovaReadClient({
-  registryAddress: "0x3A6c8f...e2",
+  registryAddress: "0x953a4edC84CEBdC113688310F54adce6Dc2c8bCf",
   provider,
 });
 
@@ -116,63 +116,86 @@ const isVerified = await client.verifyDisclosure({
 console.log("Disclosure Verified Onchain:", isVerified);`;
 
 export default function ApiDocsPage() {
+  const [light, setLight] = useState(false);
   const [tab, setTab] = useState<"solidity" | "rest" | "sdk">("solidity");
+  const reduce = useReducedMotion();
 
   return (
-    <div style={{ background: "#FFF", minHeight: "100vh", color: TXT, overflowX: "hidden" }}>
-      
+    <main className={styles.site} data-theme={light ? "light" : "dark"}>
       {/* Header / Nav */}
-      <header style={{ borderBottom: BORDER, background: "#FFF", position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/assets/sova-gradient.png" alt="SOVA" style={{ height: 18, width: "auto" }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: TXT3, textTransform: "uppercase", letterSpacing: "0.1em" }}>/ Docs / Query API</span>
-          </Link>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <Link href="/docs/architecture" style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: TXT2, textDecoration: "none", fontWeight: 500 }}>
-              Architecture Specs →
-            </Link>
-            <a href="https://github.com/Dexanode/sova-protocol" target="_blank" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: BLUE, textDecoration: "none", background: "rgba(61,111,255,0.08)", padding: "6px 12px", borderRadius: 6, fontWeight: 700 }}>
-              GitHub Repo ↗
-            </a>
-          </div>
+      <header className={styles.nav}>
+        <Link href="/" className={styles.brand}>
+          <Image
+            src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"}
+            alt="SOVA Protocol"
+            width={138}
+            height={48}
+            priority
+          />
+        </Link>
+        <nav aria-label="Primary navigation">
+          <Link href="/">Home</Link>
+          <Link href="/docs/architecture">Architecture</Link>
+          <Link href="/docs/api" style={{ color: "var(--accent)" }}>API Reference</Link>
+        </nav>
+        <div className={styles.navActions}>
+          <button
+            type="button"
+            className={styles.themeButton}
+            onClick={() => setLight((val) => !val)}
+            aria-label={`Switch to ${light ? "dark" : "light"} mode`}
+            title={`Switch to ${light ? "dark" : "light"} mode`}
+          >
+            <motion.span
+              key={light ? "moon" : "sun"}
+              initial={reduce ? false : { opacity: 0, rotate: -45, scale: 0.75 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              transition={{ duration: 0.22 }}
+            >
+              {light ? <Moon size={18} weight="regular" /> : <Sun size={18} weight="regular" />}
+            </motion.span>
+          </button>
+          <a className={styles.appLink} href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">
+            GitHub ↗
+          </a>
         </div>
       </header>
 
-      {/* Hero Header */}
-      <div style={{ borderBottom: BORDER, background: CARD, padding: "56px 24px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.2em" }}>
-            DEVELOPER INTEGRATION & API SPECIFICATION
-          </div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(32px, 5vw, 48px)", letterSpacing: "-0.03em", margin: 0, lineHeight: 1.1 }}>
-            Solidity & REST Query API
-          </h1>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: TXT2, lineHeight: 1.7, margin: 0, maxWidth: 680 }}>
+      {/* Hero Intro Section */}
+      <section className={styles.protocol} style={{ padding: "64px 0 40px" }}>
+        <div className={styles.sectionIntro}>
+          <p>Developer Reference & Integration</p>
+          <h2>Solidity & REST Query API</h2>
+          <span>
             Integrate SOVA Protocol reputation queries directly into your Whitechain smart contracts via Solidity view calls or fetch registry-backed attestations via REST endpoints.
-          </p>
+          </span>
         </div>
-      </div>
+      </section>
 
-      {/* Main Content Body */}
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "56px 24px 80px", display: "flex", flexDirection: "column", gap: 56 }}>
-
-        {/* Mode Selector Tabs */}
-        <div style={{ display: "flex", gap: 10, borderBottom: BORDER, paddingBottom: 16 }}>
+      {/* Tabs & Content */}
+      <section style={{ width: "min(1280px, calc(100% - 48px))", margin: "0 auto 100px" }}>
+        
+        {/* Tab Buttons */}
+        <div style={{ display: "flex", gap: 12, borderBottom: "1px solid var(--line)", paddingBottom: 16, marginBottom: 36, overflowX: "auto" }}>
           {[
-            { id: "solidity", label: "Solidity Smart Contract (Onchain)" },
+            { id: "solidity", label: "Solidity Interface (Onchain)" },
             { id: "rest",     label: "REST & OpenAPI 3.1 (Offchain)" },
-            { id: "sdk",      label: "TypeScript SovaReadClient" },
-          ].map(t => (
+            { id: "sdk",      label: "TypeScript SDK" },
+          ].map((t) => (
             <button
               key={t.id}
+              type="button"
               onClick={() => setTab(t.id as any)}
               style={{
-                fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700,
-                padding: "8px 16px", borderRadius: 8, border: tab === t.id ? "1px solid rgba(61,111,255,0.3)" : BORDER,
-                background: tab === t.id ? "rgba(61,111,255,0.08)" : "#FFF",
-                color: tab === t.id ? BLUE : TXT2,
-                cursor: "pointer", transition: "all 0.15s ease",
+                font: "600 13px var(--font-sans)",
+                padding: "10px 18px",
+                borderRadius: 10,
+                border: "1px solid var(--line)",
+                background: tab === t.id ? "var(--accent)" : "var(--surface)",
+                color: tab === t.id ? "var(--accent-ink)" : "var(--text)",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                whiteSpace: "nowrap",
               }}
             >
               {t.label}
@@ -180,60 +203,60 @@ export default function ApiDocsPage() {
           ))}
         </div>
 
-        {/* Tab 1: Solidity Integration */}
+        {/* Tab 1: Solidity */}
         {tab === "solidity" && (
-          <section style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
             <div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 24, margin: "0 0 8px" }}>
+              <h3 style={{ font: "600 24px/1.2 var(--font-display)", margin: "0 0 10px", color: "var(--text)" }}>
                 Solidity Onchain Query Interface
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: 0 }}>
-                Query attestation state directly inside your Whitechain smart contracts. The `SovaAttestationRegistry` provides gas-efficient view methods to verify subject scores, status enums, and expiration timestamps.
+              </h3>
+              <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.65, margin: 0, maxWidth: 720 }}>
+                Query attestation state directly inside your Whitechain smart contracts. `SovaAttestationRegistry` provides gas-efficient view methods to verify subject scores, status enums, and expiration timestamps.
               </p>
             </div>
 
-            {/* Solidity Interface snippet */}
-            <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+            {/* ISOVARegistry.sol */}
+            <div className={styles.codeWindow} style={{ minHeight: "auto" }}>
+              <div style={{ justifyContent: "space-between", alignItems: "center" }}>
                 <span>ISOVARegistry.sol (Solidity v0.8.20)</span>
                 <CopyButton text={SOLIDITY_INTERFACE_CODE} />
               </div>
-              <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
+              <pre style={{ margin: "20px 0 0", fontSize: 13, lineHeight: 1.65 }}>
                 <code>{SOLIDITY_INTERFACE_CODE}</code>
               </pre>
             </div>
 
-            {/* Example Usage Contract */}
-            <div>
-              <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, margin: "0 0 12px" }}>
+            {/* Lending Pool Example */}
+            <div style={{ marginTop: 12 }}>
+              <h3 style={{ font: "600 20px/1.2 var(--font-display)", margin: "0 0 10px", color: "var(--text)" }}>
                 Example: Reputation-Aware Lending Pool
               </h3>
-              <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+              <div className={styles.codeWindow} style={{ minHeight: "auto" }}>
+                <div style={{ justifyContent: "space-between", alignItems: "center" }}>
                   <span>WhitechainLendingPool.sol</span>
                   <CopyButton text={LENDING_POOL_EXAMPLE} />
                 </div>
-                <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
+                <pre style={{ margin: "20px 0 0", fontSize: 13, lineHeight: 1.65 }}>
                   <code>{LENDING_POOL_EXAMPLE}</code>
                 </pre>
               </div>
             </div>
-          </section>
+          </div>
         )}
 
-        {/* Tab 2: REST & OpenAPI 3.1 */}
+        {/* Tab 2: REST & OpenAPI */}
         {tab === "rest" && (
-          <section style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
             <div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 24, margin: "0 0 8px" }}>
+              <h3 style={{ font: "600 24px/1.2 var(--font-display)", margin: "0 0 10px", color: "var(--text)" }}>
                 SOVA Read API (OpenAPI 3.1)
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: 0 }}>
+              </h3>
+              <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.65, margin: 0, maxWidth: 720 }}>
                 The reference HTTP Query API provides high-speed indexed lookups backed by Node.js SQLite (`indexer-sync`), while automatically refreshing attestation status against the authoritative registry contract on every response.
               </p>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
               {[
                 {
                   method: "GET", path: "/v1/subjects/{subjectId}/attestations",
@@ -255,82 +278,111 @@ export default function ApiDocsPage() {
                   desc: "Evaluate current registry state against an explicit consumer policy (acceptedIssuers, maxAgeSeconds, requireDisclosure).",
                   params: "Body: { attestationId, policy: { acceptedIssuers, maxAgeSeconds, requireDisclosure } }",
                 },
-              ].map(ep => (
-                <div key={ep.path} style={{ borderRadius: 14, border: BORDER, background: CARD, padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+              ].map((ep) => (
+                <div key={ep.path} style={{ padding: "22px 24px", border: "1px solid var(--line)", borderRadius: 14, background: "var(--surface)", display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 700, background: ep.method === "GET" ? "rgba(16,185,129,0.1)" : "rgba(61,111,255,0.1)", color: ep.method === "GET" ? "#10b981" : BLUE, padding: "4px 8px", borderRadius: 4 }}>
+                    <span style={{ font: "700 11px var(--font-mono)", background: "color-mix(in srgb, var(--good) 15%, transparent)", color: "var(--good)", padding: "4px 8px", borderRadius: 4 }}>
                       {ep.method}
                     </span>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: TXT }}>
+                    <span style={{ font: "600 14px var(--font-mono)", color: "var(--text)" }}>
                       {ep.path}
                     </span>
                   </div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: TXT2, margin: 0, lineHeight: 1.6 }}>{ep.desc}</p>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: TXT3 }}>Parameters / Payload: {ep.params}</span>
+                  <p style={{ color: "var(--muted)", fontSize: 14, margin: 0, lineHeight: 1.6 }}>{ep.desc}</p>
+                  <span style={{ font: "11px var(--font-mono)", color: "var(--muted)" }}>Parameters / Payload: {ep.params}</span>
                 </div>
               ))}
             </div>
 
-            {/* Example cURL */}
-            <div>
+            {/* cURL Example */}
+            <div style={{ marginTop: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, margin: 0 }}>Example cURL Query</h3>
+                <h3 style={{ font: "600 20px/1.2 var(--font-display)", margin: 0, color: "var(--text)" }}>
+                  Example cURL Query
+                </h3>
                 <CopyButton text={CURL_EXAMPLE} />
               </div>
-              <div style={{ borderRadius: 14, border: "1px solid #1E293B", background: "#0F172A", padding: 20, color: "#38BDF8", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-                {CURL_EXAMPLE}
+              <div className={styles.codeWindow} style={{ minHeight: "auto" }}>
+                <pre style={{ margin: "10px 0 0", fontSize: 13, color: "var(--accent)" }}>
+                  <code>{CURL_EXAMPLE}</code>
+                </pre>
               </div>
             </div>
-          </section>
+          </div>
         )}
 
         {/* Tab 3: TypeScript SDK */}
         {tab === "sdk" && (
-          <section style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
             <div>
-              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 24, margin: "0 0 8px" }}>
+              <h3 style={{ font: "600 24px/1.2 var(--font-display)", margin: "0 0 10px", color: "var(--text)" }}>
                 TypeScript `SovaReadClient`
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: 0 }}>
+              </h3>
+              <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.65, margin: 0, maxWidth: 720 }}>
                 The `@sova-protocol/sdk` package provides a type-safe client that performs direct contract reads via Ethers/Viem and locally verifies salted payload disclosures.
               </p>
             </div>
 
-            <div style={{ borderRadius: 16, border: "1px solid #1E293B", background: "#0F172A", padding: 24, color: "#E2E8F0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+            <div className={styles.codeWindow} style={{ minHeight: "auto" }}>
+              <div style={{ justifyContent: "space-between", alignItems: "center" }}>
                 <span>TypeScript SDK Example</span>
                 <CopyButton text={TS_SDK_EXAMPLE} />
               </div>
-              <pre style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7, margin: 0, overflowX: "auto" }}>
+              <pre style={{ margin: "20px 0 0", fontSize: 13, lineHeight: 1.65 }}>
                 <code>{TS_SDK_EXAMPLE}</code>
               </pre>
             </div>
-          </section>
+          </div>
         )}
 
-        {/* Deployed Endpoints Table */}
-        <section style={{ borderRadius: 18, border: BORDER, background: CARD, padding: 28, display: "flex", flexDirection: "column", gap: 16 }}>
-          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, margin: 0 }}>Whitechain Sepolia Active Addresses</h3>
+        {/* Deployed Active Addresses */}
+        <div style={{ marginTop: 56, padding: "28px", borderRadius: 16, border: "1px solid var(--line)", background: "var(--surface)" }}>
+          <h3 style={{ font: "600 18px/1.2 var(--font-display)", margin: "0 0 16px", color: "var(--text)" }}>
+            Whitechain Sepolia Active Addresses
+          </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
-              { label: "SovaAttestationRegistry", value: "0x3A6c...f8e2", link: "https://testnet.whitechain.io" },
+              { label: "SovaAttestationRegistry", value: "0x953a4edC84CEBdC113688310F54adce6Dc2c8bCf", link: "https://testnet.whitechain.io" },
               { label: "SovaTimelockMultisig",   value: "0x9B1d...a341", link: "https://testnet.whitechain.io" },
               { label: "SOVA Read API (Health)",  value: "http://127.0.0.1:3000/health", link: null },
-            ].map(row => (
-              <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#FFF", borderRadius: 8, border: BORDER }}>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600 }}>{row.label}</span>
+            ].map((row) => (
+              <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "var(--surface-2)", borderRadius: 10, border: "1px solid var(--line)" }}>
+                <span style={{ font: "600 13px var(--font-sans)", color: "var(--text)" }}>{row.label}</span>
                 {row.link ? (
-                  <a href={row.link} target="_blank" style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: BLUE, textDecoration: "none" }}>{row.value} ↗</a>
+                  <a href={row.link} target="_blank" rel="noreferrer" style={{ font: "12px var(--font-mono)", color: "var(--accent)", textDecoration: "none" }}>{row.value} ↗</a>
                 ) : (
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: TXT2 }}>{row.value}</span>
+                  <span style={{ font: "12px var(--font-mono)", color: "var(--muted)" }}>{row.value}</span>
                 )}
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-      </main>
+      </section>
 
-    </div>
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <div>
+          <Image src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"} alt="SOVA Protocol" width={135} height={46} />
+          <p>Verifiable reputation infrastructure for onchain products.</p>
+        </div>
+        <div>
+          <span>Protocol</span>
+          <Link href="/docs/architecture">Architecture</Link>
+          <Link href="/docs/api">API Reference</Link>
+        </div>
+        <div>
+          <span>Ecosystem</span>
+          <a href="https://whitechain.io" target="_blank" rel="noreferrer">Whitechain ↗</a>
+          <a href="https://whitebit.com" target="_blank" rel="noreferrer">WhiteBIT ↗</a>
+        </div>
+        <div>
+          <span>Build</span>
+          <a href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">GitHub ↗</a>
+          <a href="mailto:hello@sovaprotocol.xyz">Contact</a>
+        </div>
+        <small>© 2026 SOVA Protocol. Independent project. Ecosystem references do not imply endorsement.</small>
+      </footer>
+    </main>
   );
 }
