@@ -104,11 +104,6 @@ export default function LandingExperience() {
           <p>Frequently Asked Questions</p>
           <h2>Everything you need to know about SOVA Protocol.</h2>
           <span>Common questions from Whitechain developers, auditors, and ecosystem partners.</span>
-          <div className={styles.faqHeaderActions}>
-            <a href="mailto:hello@sovaprotocol.xyz" className={styles.secondaryButton}>
-              Contact support ↗
-            </a>
-          </div>
         </Reveal>
 
         <div className={styles.faqAccordionList}>
