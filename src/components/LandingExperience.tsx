@@ -76,7 +76,10 @@ const useCases = [
 ];
 
 export default function LandingExperience() {
-  const [light, setLight] = useState(false); const [caseIndex, setCaseIndex] = useState(0); const reduce = useReducedMotion();
+  const [light, setLight] = useState(false);
+  const [caseIndex, setCaseIndex] = useState(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const reduce = useReducedMotion();
   return <main className={styles.site} data-theme={light ? "light" : "dark"}>
     <Lightfall />
     <header className={styles.nav}><Link href="/" className={styles.brand}><Image src={light ? "/assets/sova-black.svg" : "/assets/sova-white.png"} alt="SOVA Protocol" width={138} height={48} priority /></Link><nav aria-label="Primary navigation"><a href="#protocol">Protocol</a><a href="#proof">Proof</a><a href="#developers">Developers</a><a href="#faq">FAQ</a></nav><div className={styles.navActions}><button type="button" className={styles.themeButton} onClick={() => setLight((value) => !value)} aria-label={`Switch to ${light ? "dark" : "light"} mode`} title={`Switch to ${light ? "dark" : "light"} mode`}><motion.span key={light ? "moon" : "sun"} initial={reduce ? false : { opacity: 0, rotate: -45, scale: .75 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ duration: .22 }}>{light ? <Moon size={18} weight="regular" /> : <Sun size={18} weight="regular" />}</motion.span></button><a className={styles.appLink} href="https://app.sovaprotocol.xyz">Open dApp</a></div></header>
@@ -96,35 +99,79 @@ export default function LandingExperience() {
     <section className={styles.developerSection} id="developers"><Reveal><p>For builders</p><h2>Read evidence.<br />Make the decision.</h2><span>Integrate indexed attestations through REST, or verify authoritative state directly against the Solidity registry.</span><div className={styles.heroActions}><SpecularLink href="/docs/api">Open API reference</SpecularLink><a className={styles.secondaryButton} href="https://github.com/Dexanode/sova-protocol" target="_blank" rel="noreferrer">View GitHub</a></div></Reveal><Reveal className={styles.codeWindow}><div><span>GET</span><small>/v1/attestations/{CLAIM.slice(0, 8)}...</small></div><pre>{`{\n  "status": "ACTIVE",\n  "usable": true,\n  "chainId": 1874\n}`}</pre><i>200 OK</i></Reveal></section>
 
     <section className={styles.faqSection} id="faq">
-      <Reveal className={styles.sectionIntro}>
-        <p>Frequently Asked Questions</p>
-        <h2>Everything you need to know about SOVA Protocol.</h2>
-        <span>Common questions from Whitechain developers, auditors, and ecosystem partners.</span>
-      </Reveal>
-      <div className={styles.faqGrid}>
-        {[
-          {
-            q: "Does SOVA require additional KYC checks?",
-            a: "No. WB Soul (backed by WhiteBIT) serves as the primary identity guarantor on Whitechain. SOVA reads public WB Soul registrations and associated wallet signals to compute behavioral reputation without requiring any extra KYC or document submission."
-          },
-          {
-            q: "Is sensitive financial data exposed onchain?",
-            a: "Never. SOVA uses salted cryptographic attestations. Raw transaction logs and financial metrics remain 100% offchain in private indexers, while only non-invertible hashes and verified statuses are recorded onchain."
-          },
-          {
-            q: "How does SOVA differ from a traditional credit score?",
-            a: "SOVA is a policy-driven reputation layer, not a single opaque score. Each consumer dApp defines its own explicit evaluation criteria (e.g., minimum WBT hold, required active weeks, accepted issuers). The same claim can pass for lending while requiring additional proof for VIP rewards."
-          },
-          {
-            q: "How do Whitechain dApps query SOVA in Solidity?",
-            a: "dApps execute a single, gas-efficient view function: ISOVARegistry(registry).isUsable(attestationId) or getAttestationView(attestationId). No external oracles or offchain delays are required."
-          }
-        ].map(item => (
-          <Reveal key={item.q} className={styles.faqCard}>
-            <h3>{item.q}</h3>
-            <p>{item.a}</p>
-          </Reveal>
-        ))}
+      <div className={styles.faqContainer}>
+        <Reveal className={styles.faqHeader}>
+          <p>Frequently Asked Questions</p>
+          <h2>Everything you need to know about SOVA Protocol.</h2>
+          <span>Common questions from Whitechain developers, auditors, and ecosystem partners.</span>
+          <div className={styles.faqHeaderActions}>
+            <a href="mailto:hello@sovaprotocol.xyz" className={styles.secondaryButton}>
+              Contact support ↗
+            </a>
+          </div>
+        </Reveal>
+
+        <div className={styles.faqAccordionList}>
+          {[
+            {
+              n: "01",
+              q: "Does SOVA require additional KYC checks?",
+              a: "No. WB Soul (backed by WhiteBIT) serves as the primary identity guarantor on Whitechain. SOVA reads public WB Soul registrations and associated wallet signals to compute behavioral reputation without requiring any extra KYC or document submission."
+            },
+            {
+              n: "02",
+              q: "Is sensitive financial data exposed onchain?",
+              a: "Never. SOVA uses salted cryptographic attestations. Raw transaction logs and financial metrics remain 100% offchain in private indexers, while only non-invertible hashes and verified statuses are recorded onchain."
+            },
+            {
+              n: "03",
+              q: "How does SOVA differ from a traditional credit score?",
+              a: "SOVA is a policy-driven reputation layer, not a single opaque score. Each consumer dApp defines its own explicit evaluation criteria (e.g., minimum WBT hold, required active weeks, accepted issuers). The same claim can pass for lending while requiring additional proof for VIP rewards."
+            },
+            {
+              n: "04",
+              q: "How do Whitechain dApps query SOVA in Solidity?",
+              a: "dApps execute a single, gas-efficient view function: ISOVARegistry(registry).isUsable(attestationId) or getAttestationView(attestationId). No external oracles or offchain delays are required."
+            }
+          ].map((item, idx) => {
+            const isOpen = openFaqIndex === idx;
+            return (
+              <Reveal key={item.n} className={`${styles.faqAccordionItem} ${isOpen ? styles.faqActiveItem : ""}`}>
+                <button
+                  type="button"
+                  className={styles.faqAccordionTrigger}
+                  onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                  aria-expanded={isOpen}
+                >
+                  <div className={styles.faqTriggerLeft}>
+                    <span className={styles.faqNumber}>{item.n}</span>
+                    <span className={styles.faqQuestion}>{item.q}</span>
+                  </div>
+                  <span className={`${styles.faqIcon} ${isOpen ? styles.faqIconOpen : ""}`}>
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="content"
+                      initial={reduce ? false : { height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={reduce ? undefined : { height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <div className={styles.faqAnswer}>
+                        <p>{item.a}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Reveal>
+            );
+          })}
+        </div>
       </div>
     </section>
 
